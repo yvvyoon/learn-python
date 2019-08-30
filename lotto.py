@@ -1,12 +1,13 @@
 import random
 import requests
 
-# 아래 주석의 코드는 자바스크립트 버전
+# Javascript 버전
 # _.range(1, 46)
 # _.sampleRange(_.range(1, 46), 6)
 # _.sortBy(_.sampleRange(_.range(1, 46), 6))
 lotto = sorted(random.sample(range(1, 46), 6))
 
+# Javascript 버전
 # axios.get(url)
 url = 'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=1'
 res = requests.get(url)
