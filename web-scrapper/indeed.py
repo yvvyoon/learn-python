@@ -1,9 +1,14 @@
+# find vs find_all
+# find -> 조회한 데이터 중 첫 번째 데이터만
+# find_all -> 모든 데이터 조회
+
 import requests
 from bs4 import BeautifulSoup
 
 LIMIT = 50
 # f는 자바스크립트에서의 백틱과 비슷한 기능을 함
-URL = f'https://www.indeed.com/jobs?q=python&limit={LIMIT}'
+# URL = f'https://www.indeed.com/jobs?q=python&limit={LIMIT}'
+URL = f'https://kr.indeed.com/%EC%B7%A8%EC%97%85?q=python&l=%EC%84%9C%EC%9A%B8&radius=25&limit={LIMIT}'
 
 
 def extract_indeed_pages():
@@ -42,7 +47,29 @@ def extract_indeed_pages():
 
 
 def extract_indeed_jobs(last_page):
-    for page in range(last_page):
-        result = requests.get(f'{URL}&start={page * LIMIT}')
+    # 일자리를 추출해서 담을 변수
+    jobs = []
 
-        print(result.status_code)
+    # for page in range(last_page):
+    result = requests.get(f'{URL}&start={0 * LIMIT}')
+    soup = BeautifulSoup(result.text, 'html.parser')
+    results = soup.find_all('div', {'class': 'jobsearch-SerpJobCard'})
+
+    for result in results:
+        # ['title'] -> a 태그의 title 속성의 값 가져오기
+        title = result.find('div', {'class': 'title'}).find('a')['title']
+        company = result.find('span', {'class': 'company'})
+        company_anchor = company.find('a')
+
+        if company_anchor is not None:
+            company = str(company_anchor.string)
+        else:
+            company = str(company.string)
+
+        # strip() -> 특정 문자 또는 문자열 제거
+        # 현재 코드에서는 공백 및 빈 행 제거
+        company = company.strip()
+
+        print(title, company)
+
+    return jobs
