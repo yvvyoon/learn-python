@@ -51,8 +51,91 @@ board/
 
 <br>
 
-- 모델 테스트
-  - test_models.py
+TestCase 클래스를 상속받아 커스텀 테스트 클래스 작성
+
+```python
+class YourTestClass(TestCase):
+  	@classmethod
+    def setUp(self):
+        # Setup run before every test method.
+        pass
+
+    def tearDown(self):
+        # Clean up run after every test method.
+        pass
+
+    def test_something_that_will_pass(self):
+        self.assertFalse(False)
+
+    def test_something_that_will_fail(self):
+        self.assertTrue(False)
+```
+
+<br>
+
+- setUpTestData()
+
+  해당 테스트 클래스 내부에서 변경되지 않을 객체들을 생성
+
+- setUp()
+
+  각 테스트 메소드가 호출될 때마다 호출되는 메소드
+
+  setUpTestData() 메소드와는 반대로 테스트 중 변경될 수 있는 객체를 생성
+
+- assert***()
+
+  해당 테스트 조건이 참, 거짓 또는 동일한지 검증하는 메소드
+
+  - assertTrue(), assertFalse(), assertEqual()
+
+<br>
+
+### 테스트 수행
+
+> **$ ./manage.py test**
+>
+> *Creating test database for alias 'default'...*
+>
+> *System check identified no issues (0 silenced).*
+>
+> *setUpTestData: Run once to set up non-modified data for all class methods.*
+>
+> *setUp: Run once for every test method to setup clean data.*
+>
+> *Method: test_false_is_false.*
+>
+> *.setUp: Run once for every test method to setup clean data.*
+>
+> *Method: test_false_is_true.*
+>
+> *.setUp: Run once for every test method to setup clean data.*
+>
+> *Method: test_one_plus_one_equals_two*
+>
+> 
+>
+> *Ran 3 tests in 0.001s*
+
+<br>
+
+테스트 수행에 대해 더 많은 정보를 출력하고 싶다면 `--verbosity 2` 옵션을 주면 된다.
+
+레벨의 기본값은 1이며, 0, 1, 2, 3이다.
+
+<br>
+
+### 폼 테스트
+
+- test_forms.py
+
+> *forms.py 파일을 사용하는 방식으로 커스터마이징 후 테스트 진행*
+
+<br>
+
+### 모델 테스트
+
+- test_models.py
 
 ```python
 from django.test import TestCase
@@ -89,60 +172,9 @@ class ArticleModelTest(TestCase):
 
 <br>
 
-- setUpTestData()
+### 뷰 테스트
 
-  해당 테스트 클래스 내부에서 변경되지 않을 객체들을 생성
-
-- setUp()
-
-  각 테스트 메소드가 호출될 때마다 호출되는 메소드
-
-  setUpTestData() 메소드와는 반대로 테스트 중 변경될 수 있는 객체를 생성
-
-- assert***()
-
-  해당 테스트 조건이 참, 거짓 또는 동일한지 검증하는 메소드
-
-  - assertTrue(), assertFalse(), assertEqual()
-
-<br>
-
-#### 테스트 수행
-
-> **$ ./manage.py test**
->
-> *Creating test database for alias 'default'...*
->
-> *System check identified no issues (0 silenced).*
->
-> *setUpTestData: Run once to set up non-modified data for all class methods.*
->
-> *setUp: Run once for every test method to setup clean data.*
->
-> *Method: test_false_is_false.*
->
-> *.setUp: Run once for every test method to setup clean data.*
->
-> *Method: test_false_is_true.*
->
-> *.setUp: Run once for every test method to setup clean data.*
->
-> *Method: test_one_plus_one_equals_two*
->
-> 
->
-> *Ran 3 tests in 0.001s*
-
-<br>
-
-테스트 수행에 대해 더 많은 정보를 출력하고 싶다면 `--verbosity 2` 옵션을 주면 된다.
-
-레벨의 기본값은 1이며, 0, 1, 2, 3이다.
-
-<br>
-
-- 뷰 테스트
-  - test_views.py
+- test_views.py
 
 ```python
 from django.test import TestCase
@@ -188,4 +220,25 @@ class ArticleListViewTest(TestCase):
         self.assertTrue(response.context['is_paginated'] == True)
         self.assertTrue(len(response.context['article_list']) == 3)
 ```
+
+<br>
+
+### UnorderedObjectListWarning
+
+테스트를 수행하니 `UnorderedObjectListWarning`라는 경고가 튀어나왔다.
+
+해석 그대로 QuerySet 객체를 ordering되지 않은 상태로 출력하려니 발생하는 경고 메시지이다.
+
+사용 중인 모든 QuerySet 관련 메소드에 `order_by`절을 추가해준다.
+
+```python
+articles = Article.objects.all.order_by('id')
+
+# 아래 코드도 동일하게 동작함
+# articles = Article.objects.get_queryset().order_by('id')
+```
+
+<br>
+
+
 
