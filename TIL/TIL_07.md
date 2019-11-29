@@ -1,5 +1,15 @@
 ## Django Framework
 
+### 목차
+
+#### Pagination
+
+#### pylint 에러
+
+#### 게시글 검색
+
+<hr>
+
 ### Pagination
 
 `from django.core.paginator import Paginator`
@@ -134,5 +144,55 @@ sys.path.append("c:/a/envs/spider3/Lib/site-packages");
 sys.path.append("c:/a/envs/spider3/Lib")'
 ```
 
+<br>
 
+### 게시글 검색
+
+filter 메소드를 사용하여 키워드를 통한 게시글 검색을 구현해보자.
+
+위에서 구현했던 페이징 처리에 넘길 `articles` 객체를 사전에 filter 메소드를 적용한 채로 전달한다.
+
+- views.py
+
+```python
+def article_list(request):
+    articles = Article.objects.all()
+
+		# q로 들어오는 키워드가 없을 경우 공백으로 처리
+    q = request.GET.get('q', '')
+
+    if q:
+        articles = articles.filter(title__icontains=q)
+
+    # Paginator 객체 생성
+    # 파라미터1: 페이지로 분할될 객체
+    # 파라미터2: 한 페이지에 나타날 객체 수
+    paginator = Paginator(articles, 5)
+    # get() 메소드는 딕셔너리 자료형에서 key로 value를 찾는 역할
+    # 이 메소드에서는 페이지의 번호를 호출
+    page = request.GET.get('page', 1)
+
+    # get_page(page): 페이지 번호를 받아 해당 번호의 페이지 리턴
+    try:
+        paginated_articles = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_articles = paginator.page(1)
+    except EmptyPage:
+        paginated_articles = paginator.page(paginator.num_pages)
+
+    return render(request, 'board/article_list.html', {'paginated_articles': paginated_articles})
+```
+
+<br>
+
+- article_list.html
+
+```html
+<div class="text-center">
+  <form action="" method="GET" class="form-inline">
+    <input type="text" name="q" class="form-control" value="{{ q }}" style="width: 94%;">&nbsp;
+    <button class="btn btn-secondary" type="submit">검색</button>
+  </form>
+</div>
+```
 
