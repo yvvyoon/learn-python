@@ -254,5 +254,92 @@ articles = Article.objects.all.order_by('id')
 
 <br>
 
-### 100% Coverage
+### 테스트 코드 Coverage 확인
 
+#### coverage 설치
+
+> **$ pip install coverage**
+
+<br>
+
+#### coverage 설정
+
+Coverage.py의 default 설정 파일인 `.coveragerc`를 생성하여 아래와 같이 작성해준다.
+
+```
+[run]
+source = .
+
+[report]
+fail_under = 100			// 설정한 percentage 이하의 코드는 모두 fail
+show_missing = True		// 테스트가 수행되지 않은 코드의 라인 넘버 출력
+skip_covered = True		// 100% 커버리지를 달성한 소스코드 생략
+```
+
+<br>
+
+#### 템플릿 파일 coverage 확인
+
+소스코드 뿐만 아니라 템플릿 파일도 테스트할 수 있는 플러그인을 제공하고 있다.
+
+> **$ pip install django_coverage_plugin**
+
+<br>
+
+설치 후 `.coveragerc` 파일을 열어 `[run]` 헤더 아래에 플러그인을 추가해준다.
+
+```
+[run]
+source = .
+plugins = django_coverage_plugin
+
+...
+```
+
+<br>
+
+#### 이전에 수행한 coverage 기록 삭제
+
+> **$ coverage erase**
+
+<br>
+
+#### coverage와 테스트 수행
+
+> **$ coverage run manage.py test**
+
+<br>
+
+#### 테스트 코드 coverage 확인
+
+> **$ coverage report**
+
+<br>
+
+그런데! 매번 이전 기록 지우고, 테스트 돌리고, 리포팅하는 커맨드를 일일히 쳐주기 귀찮다. 쉘 스크립트로 만들어버리자.
+
+- test.sh
+
+```shell
+#!/bin/sh
+
+set -e
+
+echo 'Start erasing previous coverage result'
+coverage erase
+
+echo 'Start running test with coverage'
+coverage run manage.py test
+
+echo 'Start reporting coverage result'
+coverage report
+
+echo 'Start generating an HTML report'
+coverage html
+```
+
+<br>
+
+리포트를 HTML 파일로 생성해주기도 하기 때문에 웹에서도 결과를 확인할 수 있다.
+
+`/htmlcov/index.html` 경로로 접속하고, 각 테스트 대상 소스코드 파일을 클릭하면 어느 코드 라인이 제외되었는지까지 확인할 수 있다. Amazing!
