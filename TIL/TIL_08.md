@@ -1,3 +1,17 @@
+## 목차
+
+- ### [테스트 수행](#테스트-수행)
+
+- ### [폼 테스트](#폼-테스트)
+
+- ### [모델 테스트](#모델-테스트)
+
+- ### [뷰 테스트](#뷰-테스트)
+
+- ### [테스트 코드 커버리지 체크](#100%-Coverage)
+
+<hr>
+
 ## Unit test on Django Framework
 
 Django에서는 자동으로 테스트를 수행하는 테스트 프레임워크를 제공한다.
@@ -223,7 +237,7 @@ class ArticleListViewTest(TestCase):
 
 <br>
 
-### UnorderedObjectListWarning
+#### UnorderedObjectListWarning
 
 테스트를 수행하니 `UnorderedObjectListWarning`라는 경고가 튀어나왔다.
 
@@ -240,5 +254,5 @@ articles = Article.objects.all.order_by('id')
 
 <br>
 
-
+### 100% Coverage
 
