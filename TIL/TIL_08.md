@@ -73,21 +73,21 @@ class YourTestClass(TestCase):
 
 <br>
 
-- setUpTestData()
+- `setUpTestData()`
 
-  해당 테스트 클래스 내부에서 변경되지 않을 객체들을 생성
+  해당 테스트 클래스 내부에서 변경되지 않을 객체들을 생성하는 역할을 하고 테스트 시작 시, 다시 말해서 클래스 호출 시 한 번만 수행한다.
 
-- setUp()
+- `setUp()`
 
-  각 테스트 메소드가 호출될 때마다 호출되는 메소드
+  각 테스트 메소드가 호출될 때마다 호출되는 메소드이다.
 
   setUpTestData() 메소드와는 반대로 테스트 중 변경될 수 있는 객체를 생성
 
-- assert***()
+- `assert***()`
 
   해당 테스트 조건이 참, 거짓 또는 동일한지 검증하는 메소드
 
-  - assertTrue(), assertFalse(), assertEqual()
+  - `assertTrue()`, `assertFalse()`, `assertEqual()`, `assertRedirects()`, `assertTemplateUsed()` 등
 
 <br>
 
