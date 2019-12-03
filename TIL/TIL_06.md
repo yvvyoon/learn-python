@@ -194,3 +194,12 @@ def signin(request):
 
 <br>
 
+### redirect vs HttpResponseRedirect
+
+결론부터 말하자면, 두 메소드는 동일하다. 둘 중 어느 것을 써도 상관없고, HttpResponseRedirect를 사용한다고 해서 단점이 있는 것도 아니다.
+
+redirect()가 HttpResponseRedirect()의 alias 차원으로 존재한다고 이해하면 된다.
+
+굳이 차이점이 있다면 `redirect()`가 `HttpResponseRedirect()`와  `HttpResponsePermanentRedirect()`를 `permanent=False` argument와 함께 캡슐화한 것이다.
+
+redirect()는 기본적으로 일시적인 redirect를 수행한다. `permanent=True` argument를 통해 영구적인 redirect를 수행할 수 있다.
