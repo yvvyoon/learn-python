@@ -35,3 +35,11 @@
 - About unit test on Django
 - About checking test code coverage
 
+### TIL_09.md
+
+- About type of class
+
+### TIL_10.md
+
+- About \__name__, importing module, namespace
+

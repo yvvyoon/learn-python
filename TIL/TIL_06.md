@@ -16,6 +16,18 @@ Django에서는 세션 정보를 `django_session` 테이블에 보관하여 관�
 
 <br>
 
+#### 로그아웃
+
+회원가입, 로그인을 구현한 방식에 비해 너무나도 간단하다.
+
+1. urls.py 파일에 auth 프레임워크의 LogoutView를 import하고 로그아웃 path를 지정
+
+   `django.contrib.auth.views import LogoutView`
+
+2. template에서 로그아웃 버튼에 로그아웃 url 설정
+
+<br>
+
 ### Session 관리
 
 | Session 백엔드 모듈명                          |                기능                 |
