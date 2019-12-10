@@ -151,4 +151,237 @@ def login():
 
 `flash()` 메소드는 사용자에게 메시지를 보여주는 역할을 하는데, 자동으로 화면에 뿌려지는 방식은 아니다. 화면에 나타내기 위해 템플릿 파일에서 `get_flashed_messages()` 메소드를 사용해야 한다.
 
- 
+<br>
+
+## 데이터베이스 연동
+
+Flask에서 ORM을 사용할 수 있도록 해주는 `Flask-SQLAlchemy` 익스텐션을 설치하자.
+
+```
+(venv) $ pip install flask-sqlalchemy
+```
+
+<br>
+
+ORM을 위해 Django 프레임워크에서 기본적으로 `migrate`와 `makemigrations` 커맨드를 제공하는 것과 다르게 Flask에서는 별도의 익스텐션 설치를 필요로 한다. `Flask-Migrate`이다.
+
+```
+(venv) $ pip install flask-migrate
+```
+
+<br>
+
+연동할 데이터베이스의 접속 정보를 설정하자.
+
+- config.py
+
+```python
+import os
+
+
+class Config(object):
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret!@#'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql://yoon:yoon@localhost:3306/flaboard'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+```
+
+`SQLALCHEMY_TRACK_MODIFICATIONS` 옵션은 데이터베이스에 변경사항이 발생할 때마다 프로그램에 알림을 전달하는 기능에 대한 기능이다. 일단 `False`로.
+
+<br>
+
+이제 `SQLAlchemy` 클래스를 사용하여 데이터베이스 객체와 `migrate` 객체를 생성하자.
+
+- \__init__.py
+
+```python
+from flask import Flask
+from config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+
+app = Flask(__name__)
+app.config.from_object(Config)
+# app.config에 설정된 내용을 참고하여 SQLAlchemy 클래스를 통해 데이터베이스 인스턴스, migrate 인스턴스 생성
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+from flaboard import routes, models
+```
+
+<br>
+
+이제 테이블과 매핑되는 모델을 생성하자.
+
+- models.py
+
+```python
+# 생성한 db 객체를 추가
+from flaboard import db
+
+
+class User(db.Model):
+  	# Column 클래스를 각 컬럼으로 인스턴스화
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(64), index=True, unique=True)
+    user_name = db.Column(db.String(64), index=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    hashed_password = db.Column(db.String(128))
+
+    # __repr__: 클래스의 객체 텍스트 형식으로 출력할 때 사용되는 메소드
+    def __repr__(self):
+        return '가입된 회원: {}'.format(self.user_id)
+```
+
+<br>
+
+Django에서 `makemigrations`로 모델의 변경사항을 반영했다면, Flask에서는 `Flask-Migrate`에서 사용되는 `Alembic` 마이그레이션 프레임워크를 사용한다. Django에서처럼 `migrations` 디렉토리를 자동으로 생성한다. 이 디렉토리를 생성하기 위해 초기화 커맨드를 수행하자.
+
+```
+(venv) $ flask db init
+```
+
+```
+flask db init  Creating directory /Users/user/workspace/flaboard/migrations ...  done
+  Creating directory /Users/user/workspace/flaboard/migrations/versions ...  done
+  Generating /Users/user/workspace/flaboard/migrations/script.py.mako ...  done
+  Generating /Users/user/workspace/flaboard/migrations/env.py ...  done
+  Generating /Users/user/workspace/flaboard/migrations/README ...  done
+  Generating /Users/user/workspace/flaboard/migrations/alembic.ini ...  done
+  Please edit configuration/connection/logging settings in '/Users/user/workspace/flaboard/migrations/alembic.ini' before proceeding.
+```
+
+`migrations` 디렉토리가 생성되고 비어 있는 `versions`가 보인다.
+
+<br>
+
+migrate 하자!
+
+```
+(venv) $ flask db migrate
+```
+
+```
+flask db migrateINFO  [alembic.runtime.migration] Context impl MySQLImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.autogenerate.compare] Detected added table 'user'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_email' on '['email']'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_user_id' on '['user_id']'
+INFO  [alembic.autogenerate.compare] Detected added index 'ix_user_user_name' on '['user_name']'
+  Generating /Users/user/workspace/flaboard/migrations/versions/144a1e4a91b3_.py ...  done
+```
+
+migrate를 하면 비로소 `versions` 디렉토리에 생성된 모델의 내역 파일이 나타난다.
+
+<br>
+
+그런데... 아직 DB에 테이블 생성이 반영되지 않았다. 까다롭다 Flask 자식... 커맨드가 추가로 더 필요하다.
+
+```
+(venv) $ flask db upgrade
+```
+
+```
+flask db upgradeINFO  [alembic.runtime.migration] Context impl MySQLImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 144a1e4a91b3, empty message
+```
+
+<br>
+
+`upgrade` 커맨드의 반대인 `downgrade` 커맨드도 제공한다. 이 커맨드는 마지막 migrate를 취소한다. 일종의 Rollback인 셈.
+
+```
+(venv) $ flask db downgrade
+```
+
+<br>
+
+게시글 테이블인 `Article` 클래스를 생성하고, `User` 클래스와의 관계도 맺어주자.
+
+```python
+from flaboard import db
+from datetime import datetime
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(64), index=True, unique=True)
+    user_name = db.Column(db.String(64), index=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    hashed_password = db.Column(db.String(128))
+    # backref: 일대다 관계에서 다의 테이블에 추가될 컬럼의 이름
+    # 이 프로젝트에서는 각 Article 인스턴스마다 author라는 컬럼이 추가된다.
+    # lazy: 어떤 방식으로 쿼리를 날릴 것인지에 대한 옵션
+    articles = db.relationship('Article', backref='author', lazy='dynamic')
+    
+    def __repr__(self):
+        return '가입된 회원: {}'.format(self.user_id)
+
+
+class Article(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    content = db.Column(db.Text)
+    created_datetime = db.Column(db.DateTime, index=True, default=datetime.now)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+
+    def __repr__(self):
+        return '제목: {}, 작성자: {}'.format(self.title, self.user_id)
+```
+
+<br>
+
+실제로 User 클래스의 인스턴스를 생성하여 사용자를 생성해보자.
+
+```python
+from flaboard import db
+from flaboard.models import User, Article
+
+
+new_user = User(user_name='yoon', email='yoon4480@naver.com')
+db.session.add(new_user)
+db.session.commit()
+```
+
+인스턴스를 생성했다고 바로 사용자가 만들어지는 것이 아니라, 각 인스턴스에 대해 `db.session` 객체에 새로운 사용자 인스턴스를 `add` 메소드로 추가하고, `commit`까지 해야 완료된다.
+
+마치 SQL에서 작업하던 방식과 유사한 것 같다. 취소하고 싶다면, `db.session.rollback`하면 된다.
+
+<br>
+
+## 소셜 로그인 구현
+
+이번 Flask 프로젝트에서 처음으로 소셜 로그인을 적용해보고자 한다. 소셜 로그인 또한 Flask에서 `Flask-Social`이라는 익스텐션을 제공하고 있다.
+
+```
+(venv) pip install flask-social
+```
+
+<br>
+
+`Flask-Social` 익스텐션을 적용하기 위해 다른 익스텐션도 필요한 것 같다.
+
+```
+(venv) pip install flask-sqlalchemy flask-mongoengine
+```
+
+<br>
+
+이제 사용할 SNS의 API 라이브러리를 설치한다. 추후에 더 확장하기로 하고 일단 페이스북과 구글만 연동해 볼 것이다.
+
+```
+(venv) pip install http://github.com/pythonforfacebook/facebook-sdk/tarball/master
+(venv) pip install oauth2client google-api-python-client
+```
+
+<br>
+
+각 소셜 로그인을 연동하기 위해서는 해당 프로바이더의 API ID와 Key를 들고 있어야 한다.
+
+Facebook: ``
+
+Google: `https://console.developers.google.com`
+
+<br>
+
