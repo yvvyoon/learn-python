@@ -385,3 +385,95 @@ Google: `https://console.developers.google.com`
 
 <br>
 
+## 로그인
+
+### 패스워드 해싱
+
+`Werkzeug` 라이브러리를 사용할 것이다. Flask의 핵심적인 의존성을 가지는 라이브러리이기 때문에 별도로 설치하지 않아도 이미 설치되어 있어 바로 사용이 가능하다.
+
+- 기본적인 사용법
+
+```python
+from werkzeug import generate_password_hash, check_password_hash
+
+hash = generate_password_hash('mymymy')		# 해시값 어쩌고저쩌고
+check_password_hash(hash, 'youryouryour')	# False
+```
+
+<br>
+
+### Flask-Login
+
+Django와 크게 다르지 않게 Flask도 로그인 관련 익스텐션을 제공한다. 심지어 **자동 로그인**까지 지원한다. `Remember me`말이다.
+
+```
+(venv) pip install flask-login
+```
+
+근데 아무리 지지고 볶고 설치해도 제대로 import가 안된다. 인터프리터 문제인가 해서 봤더니 제대로 설정되어 있다. 그래서 일단 Pycharm 설정에서 직접 추가했다.
+
+<br>
+
+다른 익스텐션들과 마찬가지로 앱 인스턴스가 생성될 때 생성 및 초기화되어야 하므로 `__init__.py` 에 추가하고 `LoginManager` 클래스를 임포트한다.
+
+```python
+from flask_login import LoginManager
+
+...
+
+login = LoginManager(app)
+```
+
+<br>
+
+`Flask-Login` 라이브러리는 4개의 속성들을 필요로 한다.
+
+<br>
+
+> *is_authenticated: Django에서 많은 시행착오를 겪게 했던 그 자식이다.*
+>
+> *is_active: 특정 사용자의 계정이 유효하면 `True`를 뱉어낸다.*
+>
+> *is_anonymous: `is_active`와 특별히 뭐가 다른지는 모르겠는데, `is_active`와 반대의 로직을 타는 것 같다.*
+>
+> *get_id(): 사용자의 ID를 string 형태로 리턴한다. auto_increment인 ID인지 `user_id`인지는 추후에 확인해보도록 하자.*
+
+<br>
+
+프로그래밍에서 다중 상속을 위해 `Mixin`이라는 개념을 사용한다. Django에서 심심치 않게 봐와서 낯설진 않다.
+
+이 `UserMixin`을 뒤져보면 위의  `Flask-Login` 라이브러리가 사용하는 4개의 속성에 대한 메소드들이 정의되어 있다.
+
+- models.py
+
+```python
+...
+from flask_login import UserMixin
+
+...
+class User(UserMixin, db.Model):
+  
+```
+
+<br>
+
+### User Loader 함수
+
+튜토리얼로부터 이해한 바로는 세션에 현재 로그인되어 있는 사용자의 상태를 저장하여 유지하고자 사용하는데, `Flask-Login` 라이브러리가 데이터베이스와의 아무런 연관이 없다 보니 앱 단에서 string 형태로 리턴하는 `id`값을 사용하여 메모리에 저장하는 것 같다.
+
+쓰고 보니 세션 관리가 맞는 것 같다.
+
+- models.py
+
+```python
+from flaboard import db, login
+...
+
+@login.user_loader
+def load_user(id):
+  	# id를 string으로 전달받기 때문에 integer로 캐스팅 필요
+    return User.query.get(int(id))
+```
+
+<br>
+
