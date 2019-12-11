@@ -477,3 +477,87 @@ def load_user(id):
 
 <br>
 
+### 로그아웃
+
+로그인에 `login_user()` 메소드를 사용한 것처럼 로그아웃 또한 `logout_user()` 메소드를 사용한다. 쉽다.
+
+```python
+...
+from flask_login import current_user, login_user, logout_user
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+
+    return redirect(url_for('index'))
+```
+
+<br>
+
+템플릿 파일에서 로그인 여부에 따라 화면을 분기하는 건 Django와 유사한데, `Flask-Login` 라이브러리에서 제공하는 `current_user` 클래스를 사용한다.
+
+```html
+{% current_user.is_authenticated %}
+```
+
+<br>
+
+## Logging 모듈 적용
+
+`fileConfig()`로 configuration 파일을 적용하는 방식을 사용하여 내 프로젝트에 로깅을 적용해보았다. 시행착오가 약간 있었는데, config 파일을 불러오는 경로 지정이 애매했다. 일단 프로젝트 root 디렉토리에 배치했는데 이 부분은 더 연구를 해봐야겠다.
+
+<br>
+
+- flaboard/routes.py
+
+```python
+...
+import logging
+import logging.config
+...
+
+logging.config.fileConfig('flaboard_logging.conf')
+logger = logging.getLogger('flaboard_logger')
+
+...
+logger.info('Flaboard 메인 접속. index.html 진입')
+
+...
+logger.info('로그인 화면 접속. login.html 진입')
+```
+
+<br>
+
+- flaboard_logging.conf
+
+```
+[loggers]
+keys=root, flaboard_logger
+
+[handlers]
+keys=file_handler
+
+[formatters]
+keys=flaboard_formatter
+
+[logger_root]
+level=DEBUG
+handlers=file_handler
+
+[logger_flaboard_logger]
+level=DEBUG
+handlers=file_handler
+qualname=flaboard_logger
+propagate=0
+
+[handler_file_handler]
+class=FileHandler
+level=DEBUG
+formatter=flaboard_formatter
+args=('logs/flaboard.log',)
+
+[formatter_flaboard_formatter]
+format=%(asctime)s - %(levelname)s - %(message)s
+datefmt=
+```
