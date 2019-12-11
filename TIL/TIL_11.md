@@ -350,41 +350,6 @@ db.session.commit()
 
 <br>
 
-## 소셜 로그인 구현
-
-이번 Flask 프로젝트에서 처음으로 소셜 로그인을 적용해보고자 한다. 소셜 로그인 또한 Flask에서 `Flask-Social`이라는 익스텐션을 제공하고 있다.
-
-```
-(venv) pip install flask-social
-```
-
-<br>
-
-`Flask-Social` 익스텐션을 적용하기 위해 다른 익스텐션도 필요한 것 같다.
-
-```
-(venv) pip install flask-sqlalchemy flask-mongoengine
-```
-
-<br>
-
-이제 사용할 SNS의 API 라이브러리를 설치한다. 추후에 더 확장하기로 하고 일단 페이스북과 구글만 연동해 볼 것이다.
-
-```
-(venv) pip install http://github.com/pythonforfacebook/facebook-sdk/tarball/master
-(venv) pip install oauth2client google-api-python-client
-```
-
-<br>
-
-각 소셜 로그인을 연동하기 위해서는 해당 프로바이더의 API ID와 Key를 들고 있어야 한다.
-
-Facebook: ``
-
-Google: `https://console.developers.google.com`
-
-<br>
-
 ## 로그인
 
 ### 패스워드 해싱
