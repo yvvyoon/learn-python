@@ -1,14 +1,6 @@
 ## Today I Learned about Python
 
-### TIL_01.md
-
-- About syntax in Python
-
-### TIL_02.md
-
-- About syntax in Python
-
-### TIL_03.md
+### TIL_01 ~ 03.md
 
 - About syntax in Python
 
@@ -43,3 +35,18 @@
 
 - About \__name__, importing module, namespace
 
+### TIL_11.md
+
+- About beginning Flask project
+
+### TIL_12.md
+
+- About Logging module provided in Python
+
+### TIL_13.md
+
+- About Social authenticaiton
+
+### TIL_14.md
+
+- About devpi-server - Python package mirror server
