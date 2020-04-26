@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="ko" onclick="selectLanguage('ko')">한국어</button>
+    <hr>
+    <button id="en" onclick="selectLanguage('en')">영어</button>
+    <hr>
+    <h1 id="print"></h1>
+
+    <script>
+        function selectLanguage(langCode) {
+            let selectedLanguage = langCode
+
+            document.cookie = `selectedLanguage=${selectedLanguage};`
+            document.getElementById('print').innerHTML += `${selectedLanguage}`
+
+            console.log(`### 언어 설정: ${selectedLanguage}`)
+
+            window.location.reload()
+        }
+    </script>
+</body>
+
+
+
+</html>
