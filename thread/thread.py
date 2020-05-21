@@ -10,8 +10,8 @@ def summarize(id, start, end, result):
         mid_sum += 1
         result.append(mid_sum)
 
-    duration = time.time() - start_time
-    print(f'Duration of ID[{id}]: {duration}')
+    elapsed_time = time.time() - start_time
+    print(f'Elapsed time of ID[{id}]: {elapsed_time}')
 
     return
 
@@ -19,10 +19,14 @@ def summarize(id, start, end, result):
 if __name__ == '__main__':
     start, end = 0, 100000000
     result = list()
-    thread1 = Thread(target=summarize, args=(1, start, end, result))
+
+    thread1 = Thread(target=summarize, args=(1, start, end // 2, result))
+    thread2 = Thread(target=summarize, args=(2, end // 2, end, result))
 
     thread1.start()
+    thread2.start()
     thread1.join()
+    thread2.join()
 
 
 print(f'Result: {sum(result)}')
