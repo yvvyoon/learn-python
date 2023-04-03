@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Insert title here</title>
+</head>
+
+<body>
+    <form>
+        <input id="textMessage" type="text">
+        <input onclick="sendMessage()" value="Send" type="button">
+        <input onclick="disconnect()" value="Disconnect" type="button">
+    </form>
+    <br />
+    <textarea id="messageTextArea" rows="30" cols="150"></textarea>
+    <script type="text/javascript">
+        const webSocket = new WebSocket("ws://localhost:8765")
+        let messageTextArea = document.getElementById("messageTextArea")
+
+        webSocket.onopen = function (message) {
+            messageTextArea.value += "Server connect...\n";
+        }
+
+        webSocket.onclose = function (message) {
+            messageTextArea.value += "Server Disconnect...\n";
+        }
+
+        webSocket.onerror = function (message) {
+            messageTextArea.value += "error...\n";
+        }
+
+        webSocket.onmessage = function (message) {
+            messageTextArea.value += `${message.data}\n`
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("textMessage")
+            message_to_send = `# 킼킼 => ${message.value}\n`
+            webSocket.send(message_to_send)
+            message.value = "";
+        }
+
+        function disconnect() {
+            webSocket.close()
+        }
+    </script>
+</body>
+
+</html>

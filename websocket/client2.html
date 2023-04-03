@@ -31,13 +31,13 @@
         }
 
         webSocket.onmessage = function (message) {
-            messageTextArea.value += "Receive From Server => " + message.data + "\n"
+            messageTextArea.value += `${message.data}\n`
         }
 
         function sendMessage() {
             const message = document.getElementById("textMessage")
-            messageTextArea.value += "Send to Server => " + message.value + "\n"
-            webSocket.send(message.value)
+            message_to_send = `# 치즈 => ${message.value}\n`
+            webSocket.send(message_to_send)
             message.value = "";
         }
 

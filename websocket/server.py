@@ -14,9 +14,9 @@ async def echo(websocket):
     try:
         async for message in websocket:
             print(f'Received message: {message}')
+
             for client in entered_clients:
-                if client != websocket:
-                    await websocket.send(f'         ㄴㅡㅡ Echo reply: message')
+                await client.send(message)
     except websocket.exception.ConnectionClosed as error:
         print(f'Error: {error}')
     finally:
